@@ -51,3 +51,46 @@ def list_logs(
 @app.get("/stats")
 def stats():
     return database.get_stats()
+
+
+# ---------------------------------------------------------------- Step 7
+import json
+
+from fastapi import HTTPException
+
+from security import alert_store, pipeline
+
+
+@app.post("/detect")
+def run_detection(policy: str = "ml", threshold: float = Query(0.5, ge=0.0, le=1.0)):
+    """Run the full pipeline (features, ML + rules, incidents) on the stored logs
+    and save the resulting alerts."""
+    events = database.load_events_df()
+    if events.empty:
+        raise HTTPException(status_code=400, detail="No logs stored yet")
+    try:
+        alerts, _ = pipeline.detect(events, policy=policy, threshold=threshold)
+    except FileNotFoundError as err:
+        raise HTTPException(status_code=503, detail=str(err))
+    except ValueError as err:
+        raise HTTPException(status_code=422, detail=str(err))
+    alert_store.save_alerts(alerts)
+    return {
+        "policy": policy,
+        "events_analysed": int(len(events)),
+        "alerts_raised": int(len(alerts)),
+        "by_severity": {k: int(v) for k, v in alerts["severity"].value_counts().items()},
+    }
+
+
+@app.get("/alerts")
+def list_alerts(severity: str | None = None, attack_type: str | None = None,
+                limit: int = Query(500, ge=1, le=5000)):
+    """Alerts produced by the last detection run."""
+    df = alert_store.load_alerts()
+    if severity:
+        df = df[df["severity"] == severity.upper()]
+    if attack_type:
+        df = df[df["attack_type"] == attack_type]
+    df = df.drop(columns=["event_ids"]).head(limit)
+    return {"count": int(len(df)), "alerts": json.loads(df.to_json(orient="records"))}

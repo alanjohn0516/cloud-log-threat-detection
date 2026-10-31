@@ -1,0 +1,36 @@
+{
+  "policies": [
+    {
+      "policy": "rules",
+      "alerts": 12,
+      "precision": 0.9621,
+      "recall": 0.6503,
+      "f1": 0.7761,
+      "FP": 24,
+      "FN": 328,
+      "attacks": "11/16"
+    },
+    {
+      "policy": "ml",
+      "alerts": 15,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "FP": 0,
+      "FN": 0,
+      "attacks": "16/16"
+    },
+    {
+      "policy": "union",
+      "alerts": 16,
+      "precision": 0.9751,
+      "recall": 1.0,
+      "f1": 0.9874,
+      "FP": 24,
+      "FN": 0,
+      "attacks": "16/16"
+    }
+  ],
+  "classification_correct": 14,
+  "alerts": 15
+}
