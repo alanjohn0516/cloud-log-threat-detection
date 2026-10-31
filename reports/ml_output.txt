@@ -1,0 +1,58 @@
+Building training data from synthetic datasets (seeds [1, 2, 3, 4, 5])...
+  training events: 32492   attack share: 0.149
+  test events (cloud database): 6435   attack share: 0.146
+Training Decision Tree (FULL)...
+Training Logistic Regression (FULL)...
+Training Random Forest (FULL)...
+Training XGBoost (FULL)...
+Training Isolation Forest (FULL)...
+Training Decision Tree (NO_HISTORY)...
+Training Logistic Regression (NO_HISTORY)...
+Training Random Forest (NO_HISTORY)...
+Training XGBoost (NO_HISTORY)...
+Training Isolation Forest (NO_HISTORY)...
+
+EVENT-LEVEL COMPARISON (6435 test events)
+
+FULL feature set (with IP/user history):
+              model  precision  recall     f1    fpr  FP  FN attacks
+      Rules (R1-R3)     0.9621  0.6503 0.7761 0.0044  24 328   11/16
+      Decision Tree     0.9979  1.0000 0.9989 0.0004   2   0   16/16
+Logistic Regression     0.9979  1.0000 0.9989 0.0004   2   0   16/16
+      Random Forest     0.9989  1.0000 0.9995 0.0002   1   0   16/16
+            XGBoost     0.9989  1.0000 0.9995 0.0002   1   0   16/16
+   Isolation Forest     0.7809  0.7676 0.7742 0.0367 202 218   16/16
+
+NO_HISTORY ablation (history features removed):
+              model  precision  recall     f1    fpr  FP  FN attacks
+      Decision Tree     0.9625  0.9840 0.9731 0.0065  36  15   16/16
+Logistic Regression     0.9088  0.9883 0.9469 0.0169  93  11   16/16
+      Random Forest     0.9747  0.9861 0.9804 0.0044  24  13   16/16
+            XGBoost     0.9788  0.9861 0.9825 0.0036  20  13   16/16
+   Isolation Forest     0.8013  0.7910 0.7961 0.0335 184 196   16/16
+
+ATTACK-LEVEL (attacks detected / launched), FULL features:
+                    Rules (R1-R3) Decision Tree Logistic Regression Random Forest XGBoost Isolation Forest
+attack_type                                                                                               
+credential_stuffing           3/3           3/3                 3/3           3/3     3/3              3/3
+low_and_slow                  0/2           2/2                 2/2           2/2     2/2              2/2
+password_guessing             3/3           3/3                 3/3           3/3     3/3              3/3
+password_spraying             0/3           3/3                 3/3           3/3     3/3              3/3
+role_enumeration              3/3           3/3                 3/3           3/3     3/3              3/3
+root_brute_force              2/2           2/2                 2/2           2/2     2/2              2/2
+
+NORMAL ACTIVITY WRONGLY FLAGGED (events per scenario), FULL features:
+  Rules (R1-R3)        {'office_sso_glitch': 24}
+  Decision Tree        {'typo': 1, 'routine': 1}
+  Logistic Regression  {'typo': 1, 'routine': 1}
+  Random Forest        {'typo': 1}
+  XGBoost              {'typo': 1}
+  Isolation Forest     {'denied_role': 127, 'routine': 31, 'office_sso_glitch': 29, 'misconfigured_bot': 8, 'typo': 6, 'bot_routine': 1}
+
+MOST IMPORTANT FEATURES:
+  Decision Tree: pair_prior_success (0.97), ip_distinct_users_fail_5m (0.02), ip_login_fail_1h (0.00), ip_prior_success (0.00), baseline_age_days (0.00)
+  Random Forest: pair_prior_success (0.26), ip_prior_success (0.20), ip_distinct_users_fail_5m (0.12), is_failure (0.12), ip_login_fail_5m (0.09)
+  XGBoost: pair_prior_success (0.97), ip_distinct_users_fail_5m (0.01), ip_prior_success (0.01), is_failure (0.00), ip_login_fail_5m (0.00)
+
+Saved reports/ml_results.csv, ml_attack_level.csv, ml_feature_importance.csv, ml_comparison.png
+Saved models in ml/saved/

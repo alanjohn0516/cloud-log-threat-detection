@@ -1,0 +1,33 @@
+Saved data/cloudtrail_logs.json and data/cloudtrail_labeled.csv
+
+Total events: 6435
+
+By event type:
+event_name
+AssumeRole      3532
+ConsoleLogin    2903
+
+By outcome:
+outcome
+Success    5200
+Failure    1235
+
+Attack events: 938 (14.6%)
+                     events  attacks
+attack_type                         
+credential_stuffing     245        3
+low_and_slow            137        2
+password_guessing       280        3
+password_spraying       156        3
+role_enumeration         66        3
+root_brute_force         54        2
+
+Normal-traffic scenarios:
+scenario
+routine              4460
+bot_routine           720
+typo                  132
+denied_role           127
+office_sso_glitch      36
+forgot_password        14
+misconfigured_bot       8

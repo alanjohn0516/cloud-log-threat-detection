@@ -1,0 +1,64 @@
+Loaded 6435 events from the cloud database
+
+POLICY COMPARISON (events judged after incident grouping)
+policy  alerts  precision  recall     f1  FP  FN attacks
+ rules      12     0.9621  0.6503 0.7761  24 328   11/16
+    ml      15     1.0000  1.0000 1.0000   0   0   16/16
+ union      16     0.9751  1.0000 0.9874  24   0   16/16
+
+NORMAL EVENTS WRONGLY ALERTED:
+  rules  {'office_sso_glitch': 24}
+  ml     none
+  union  {'office_sso_glitch': 24}
+
+ALERTS (policy = ml): 15
+severity
+MEDIUM      7
+HIGH        7
+CRITICAL    1
+  alert_id             attack_type severity  confidence           start_time  event_count  distinct_ips  success_after detected_by
+ALERT-0001        role_enumeration   MEDIUM        99.7 2026-09-06T12:30:44Z           13             1          False  ML + Rules
+ALERT-0002        root_brute_force     HIGH       100.0 2026-09-07T16:04:32Z           22             1          False  ML + Rules
+ALERT-0003        role_enumeration   MEDIUM       100.0 2026-09-09T20:22:50Z           30             1          False  ML + Rules
+ALERT-0004 distributed_brute_force   MEDIUM       100.0 2026-09-11T10:21:13Z           63            14          False     ML only
+ALERT-0005       password_guessing   MEDIUM       100.0 2026-09-14T06:36:56Z           92             1          False  ML + Rules
+ALERT-0006       password_guessing     HIGH       100.0 2026-09-15T13:56:51Z           96             1          False  ML + Rules
+ALERT-0007       password_spraying     HIGH       100.0 2026-09-16T12:16:28Z          123            12           True     ML only
+ALERT-0008       password_guessing   MEDIUM       100.0 2026-09-20T12:26:14Z           92             1          False  ML + Rules
+ALERT-0009     credential_stuffing   MEDIUM       100.0 2026-09-20T18:16:14Z           65             1          False  ML + Rules
+ALERT-0010       password_spraying CRITICAL       100.0 2026-09-20T20:38:07Z           49             1           True     ML only
+ALERT-0011        role_enumeration     HIGH        99.9 2026-09-23T08:39:06Z           23             1           True  ML + Rules
+ALERT-0012     credential_stuffing   MEDIUM       100.0 2026-09-24T05:52:17Z           72             1          False  ML + Rules
+ALERT-0013        root_brute_force     HIGH       100.0 2026-09-24T16:06:01Z           32             1          False  ML + Rules
+ALERT-0014     credential_stuffing     HIGH       100.0 2026-09-25T07:39:15Z          108             1           True  ML + Rules
+ALERT-0015       password_spraying     HIGH       100.0 2026-09-29T17:22:18Z           58             1           True     ML only
+
+ATTACK TYPE CLASSIFICATION (alerts by true attack type)
+                     alerts  correct
+true_type                           
+credential_stuffing       3        3
+low_and_slow              2        1
+password_guessing         3        3
+password_spraying         2        2
+role_enumeration          3        3
+root_brute_force          2        2
+
+EXAMPLE ALERT (most severe)
+  ID:          ALERT-0010
+  Attack:      password_spraying
+  Severity:    CRITICAL
+  Confidence:  100.0%
+  Source IPs:  48.174.124.45
+  Targets:     admin, bob, frank (+13 more)
+  Events:      49 over 1059 s (48 failed)
+  Sign-in after attack: YES
+  Detected by: ML only
+  Recommended action:
+    -> URGENT: a successful sign-in followed - revoke active sessions and rotate credentials
+    -> Block the source IP
+    -> Reset passwords of targeted accounts that show a success
+    -> Enforce MFA for all users
+    -> Review the list of targeted accounts
+
+Saved 15 alerts to the database (table: alerts)
+Saved reports/pipeline_alerts.csv, pipeline_policies.csv, pipeline_metrics.json

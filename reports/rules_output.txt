@@ -1,0 +1,36 @@
+RULES USED
+  R1: >= 10 events in 20 min per account   [Elastic detection rule]
+  R2: >= 20 events in 5 min per source_ip   [Sigma / Splunk rule]
+  R3: >= 3 events in 60 min per source_ip   [Splunk Security Content]
+
+EVENT-LEVEL RESULTS (every log line judged on its own)
+  Precision:           0.962
+  Recall:              0.650
+  F1-score:            0.776
+  False positive rate: 0.0044
+  TP=610  FP=24  FN=328  TN=5473
+
+ALERT-LEVEL RESULTS (is each alert a real attack?)
+  Alerts raised: 12   real: 11   false: 1
+
+  FALSE ALERTS (normal behaviour wrongly flagged):
+  alert_id rule_id        group  event_count severity          scenario
+ALERT-0001      R2 203.0.113.10           24   MEDIUM office_sso_glitch
+
+ATTACK-LEVEL RESULTS (attacks detected / attacks launched)
+                     detected  total
+attack_type                         
+credential_stuffing         3      3
+low_and_slow                0      2
+password_guessing           3      3
+password_spraying           0      3
+role_enumeration            3      3
+root_brute_force            2      2
+  Overall: 11 of 16 attacks detected
+
+ALERTS BY SEVERITY
+severity
+MEDIUM    7
+HIGH      5
+
+Saved reports/rule_metrics.json and reports/rule_alerts.csv
