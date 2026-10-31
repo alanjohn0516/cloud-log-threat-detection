@@ -1,0 +1,8 @@
+STRING 1 (main):
+("AWS" OR "Amazon Web Services" OR "public cloud") AND ("CloudTrail" OR "VPC flow logs" OR "GuardDuty" OR "authentication log" OR "audit log") AND ("brute force" OR "password spraying" OR "credential stuffing" OR "failed login") AND ("detection" OR "anomaly" OR "machine learning")
+
+STRING 2 (broader):
+("SSH brute force" OR "brute-force attack") AND ("log" OR "logs") AND ("cloud" OR "virtual machine") AND ("detection")
+
+Filters: English, 2017-2026
+Databases: IEEE Xplore, ACM DL, ScienceDirect, SpringerLink, Scopus, Google Scholar, arXiv

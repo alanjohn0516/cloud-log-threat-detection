@@ -1,0 +1,4 @@
+source,detection_logic,log_source,failure_count,time_window,grouping_key
+Elastic detection rule,Failed root user logins,CloudTrail,10,20 minutes,AWS account
+Splunk / Sigma-style rule,Failed console logins (brute force or spraying),CloudTrail ConsoleLogin,20,5 minutes,Source IP
+Splunk Security Content,Failed AssumeRole with MalformedPolicyDocumentException (role-name guessing),CloudTrail via Amazon Security Lake,3,1 hour,TO_FILL

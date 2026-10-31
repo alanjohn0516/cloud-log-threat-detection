@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+*.db
+data/cloudtrail_logs.json
+data/cloudtrail_labeled.csv
+.vscode/
