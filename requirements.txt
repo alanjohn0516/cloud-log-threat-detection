@@ -10,3 +10,5 @@ streamlit
 requests
 joblib
 pytest
+
+httpx
