@@ -16,32 +16,20 @@ import pandas as pd
 import streamlit as st
 
 from cloud import database
+from dashboard import ui
 from security import alert_store, pipeline
 
 st.set_page_config(page_title="Cloud Log Threat Detection", page_icon="🛡️", layout="wide")
+ui.inject_css()
 
-SEVERITIES = ["CRITICAL", "HIGH", "MEDIUM"]
+SEVERITIES = ui.SEV_ORDER
 ICON = {"CRITICAL": "🔴 CRITICAL", "HIGH": "🟠 HIGH", "MEDIUM": "🟡 MEDIUM"}
 STATUSES = list(alert_store.STATUSES)
 TABLE_COLUMNS = ["alert_id", "level", "attack_type", "confidence", "start_time",
                  "event_count", "distinct_ips", "targets", "success_after",
                  "detected_by", "status"]
-
-ARCHITECTURE = """\
- Cloud logs (AWS CloudTrail: ConsoleLogin, AssumeRole)
-        |
-        v
- Cloud module: FastAPI + SQLite log database
-        |
-        v
- AI/ML module: features (per-IP / per-user windows) -> Random Forest
-        |        + threshold rules R1-R3 (Elastic, Sigma/Splunk)
-        v
- Cybersecurity engine: incidents -> attack type -> severity -> response
-        |
-        v
- Alerts table -> this dashboard
-"""
+FLOW = ["Cloud logs", "SQLite + FastAPI", "Features", "ML + rules",
+        "Incidents", "Severity + response", "Dashboard"]
 
 
 def db_stamp(path):
@@ -51,10 +39,6 @@ def db_stamp(path):
 @st.cache_data(ttl=60)
 def load_events(path, stamp):
     return database.load_events_df(path)
-
-
-def pretty(text):
-    return str(text).replace("_", " ").title()
 
 
 def run_detection(events, path):
@@ -76,9 +60,10 @@ alerts = alert_store.load_alerts(db_path)
 if "flash" in st.session_state:
     st.success(st.session_state.pop("flash"))
 
-st.title("🛡️ Cloud Log Threat Detection")
-st.caption("Brute force detection in AWS CloudTrail logs: "
-           "machine learning + threshold rules + cybersecurity response")
+ui.hero("🛡️ Cloud Log Threat Detection",
+        "Brute force detection in AWS CloudTrail logs: machine learning, "
+        "threshold rules and a cybersecurity response engine",
+        ["AWS CloudTrail", "ML + rules", f"{len(events_raw):,} events"])
 
 if events_raw.empty:
     st.warning("No logs found in the cloud database. Run: "
@@ -89,7 +74,9 @@ events = events_raw.assign(time=pd.to_datetime(events_raw["event_time"], utc=Tru
 failed = events[events["outcome"] == "Failure"]
 
 with st.sidebar:
-    st.header("Controls")
+    st.markdown('<div class="brand">🛡️ ThreatWatch</div>'
+                '<div class="brand-sub">Cloud log threat detection</div>',
+                unsafe_allow_html=True)
     sev_filter = st.multiselect("Severity", SEVERITIES, default=SEVERITIES)
     type_options = sorted(alerts["attack_type"].unique())
     type_filter = st.multiselect("Attack type", type_options, default=type_options)
@@ -118,44 +105,51 @@ k[4].metric("Open alerts", str(int((alerts["status"] == "open").sum())))
 if alerts.empty:
     st.info("No alerts yet. Click 'Run detection now' in the sidebar.")
 
+st.write("")
 tab_over, tab_alerts, tab_models, tab_about = st.tabs(
     ["📊 Overview", "🚨 Alerts", "🧪 Model comparison", "ℹ️ About"])
 
 # ------------------------------------------------------------------ Overview
 with tab_over:
+    order = {s: i for i, s in enumerate(ui.SEV_ORDER)}
+    attention = (alerts[alerts["status"] == "open"]
+                 .assign(_o=lambda d: d["severity"].map(order))
+                 .sort_values(["_o", "start_time"]).head(3))
+    if not attention.empty:
+        ui.section("Needs attention", "the most urgent open alerts")
+        cols = st.columns(3)
+        for col, (_, row) in zip(cols, attention.iterrows()):
+            col.markdown(ui.alert_card(row), unsafe_allow_html=True)
+
     left, right = st.columns(2)
     with left:
-        st.subheader("Alerts by severity")
+        ui.section("Alerts by severity")
         if view.empty:
             st.caption("No alerts match the filters.")
         else:
-            st.bar_chart(view["severity"].value_counts().reindex(SEVERITIES, fill_value=0))
+            st.altair_chart(ui.severity_chart(view))
     with right:
-        st.subheader("Alerts by attack type")
+        ui.section("Alerts by attack type")
         if view.empty:
             st.caption("No alerts match the filters.")
         else:
-            st.bar_chart(view["attack_type"].value_counts())
+            st.altair_chart(ui.type_chart(view))
 
-    st.subheader("Failed sign-ins and role calls per hour")
+    ui.section("Failed sign-ins and role calls per hour")
     if failed.empty:
         st.caption("No failed events.")
     else:
-        st.line_chart(failed.set_index("time").resample("1h").size().rename("failed events"))
+        st.altair_chart(ui.hourly_chart(failed))
 
-    st.subheader("Alert timeline")
+    ui.section("Alert timeline", "bubble size = number of events in the alert")
     if view.empty:
         st.caption("No alerts match the filters.")
     else:
-        timeline = pd.DataFrame({
-            "start": pd.to_datetime(view["start_time"], utc=True),
-            "events in alert": view["event_count"],
-            "severity": view["severity"]})
-        st.scatter_chart(timeline, x="start", y="events in alert", color="severity")
+        st.altair_chart(ui.timeline_chart(view))
 
     if not failed.empty:
-        st.subheader("Top source IPs by failed events")
-        st.bar_chart(failed.groupby("source_ip").size().sort_values(ascending=False).head(10))
+        ui.section("Top source IPs by failed events")
+        st.altair_chart(ui.ips_chart(failed))
         st.caption("A busy IP is not always an attacker: your own office also appears here "
                    "because many normal users sit behind one shared address.")
 
@@ -164,30 +158,29 @@ with tab_alerts:
     if view.empty:
         st.info("No alerts to show. Adjust the filters or run detection.")
     else:
+        ui.section("All alerts", f"{len(view)} shown")
         table = view.assign(level=view["severity"].map(ICON))[TABLE_COLUMNS]
-        st.dataframe(table, hide_index=True)
+        st.dataframe(
+            table, hide_index=True,
+            column_config={
+                "alert_id": "Alert", "level": "Severity", "attack_type": "Attack",
+                "confidence": st.column_config.ProgressColumn(
+                    "ML confidence", min_value=0, max_value=100, format="%.1f"),
+                "start_time": "Start", "event_count": "Events", "distinct_ips": "IPs",
+                "targets": "Targets",
+                "success_after": st.column_config.CheckboxColumn("Sign-in after"),
+                "detected_by": "Detected by", "status": "Status"})
         st.download_button("Download alerts as CSV", table.to_csv(index=False),
                            "alerts.csv", "text/csv")
-        st.divider()
 
-        choice = st.selectbox("Inspect an alert", view["alert_id"].tolist())
+        ui.section("Inspect an alert")
+        choice = st.selectbox("Alert", view["alert_id"].tolist(),
+                              label_visibility="collapsed")
         a = view[view["alert_id"] == choice].iloc[0]
-        st.subheader(f"{choice}: {pretty(a['attack_type'])}")
-        c = st.columns(4)
-        c[0].metric("Severity", a["severity"])
-        c[1].metric("ML confidence", f"{a['confidence']}%")
-        c[2].metric("Events", str(a["event_count"]))
-        c[3].metric("Distinct IPs", str(a["distinct_ips"]))
-        st.write(f"**Source IPs:** {a['source_ips']}   |   **Targets:** {a['targets']}")
-        st.write(f"**Window:** {a['start_time']} to {a['end_time']} "
-                 f"({a['duration_s']} s)   |   **Detected by:** {a['detected_by']}")
+        st.markdown(ui.alert_detail(a), unsafe_allow_html=True)
         if a["success_after"]:
             st.error("A successful sign-in followed this attack. "
                      "Treat the account as compromised.")
-
-        st.markdown("**Recommended response**")
-        for step in a["recommended_action"].split("; "):
-            st.markdown(f"- {step}")
 
         new_status = st.radio("Status", STATUSES, index=STATUSES.index(a["status"]),
                               horizontal=True, key=f"status_{choice}_{a['status']}")
@@ -203,7 +196,7 @@ with tab_alerts:
 
 # ------------------------------------------------------------ Model comparison
 with tab_models:
-    st.subheader("Rules vs machine learning")
+    ui.section("Rules vs machine learning")
     res_file = os.path.join(ROOT, "reports", "ml_results.csv")
     if os.path.exists(res_file):
         res = pd.read_csv(res_file)
@@ -219,7 +212,8 @@ with tab_models:
 
     pol_file = os.path.join(ROOT, "reports", "pipeline_policies.csv")
     if os.path.exists(pol_file):
-        st.subheader("Detection policies in the integrated pipeline")
+        ui.section("Detection policies in the integrated pipeline",
+                   "rules only, ML only, or both")
         st.dataframe(pd.read_csv(pol_file), hide_index=True)
 
     img_file = os.path.join(ROOT, "reports", "ml_comparison.png")
@@ -228,20 +222,26 @@ with tab_models:
 
 # --------------------------------------------------------------------- About
 with tab_about:
-    st.subheader("How the system works")
-    st.code(ARCHITECTURE, language="text")
+    ui.section("How the system works")
+    st.markdown(ui.flow_html(FLOW), unsafe_allow_html=True)
     st.markdown(
         "**Roles:** the *cloud* module collects and stores logs, the *AI/ML* module "
         "scores every event, and the *cybersecurity* engine turns flagged events into "
         "incidents with an attack type, a severity and a recommended response.")
-    st.markdown("**Severity levels**")
-    st.markdown("- 🟡 **MEDIUM**: a detected attack with no sign of compromise\n"
-                "- 🟠 **HIGH**: 100+ failures, a privileged target, or a sign-in followed the attack\n"
-                "- 🔴 **CRITICAL**: a privileged account (root/admin) signed in after the attack")
-    st.markdown("**Limitations**")
+    ui.section("Severity levels")
+    st.markdown(
+        f"{ui.severity_badge('MEDIUM')} a detected attack with no sign of compromise<br>"
+        f"{ui.severity_badge('HIGH')} 100+ failures, a privileged target, "
+        "or a sign-in followed the attack<br>"
+        f"{ui.severity_badge('CRITICAL')} a privileged account (root/admin) signed in "
+        "after the attack", unsafe_allow_html=True)
+    ui.section("Limitations")
     st.markdown("- All logs are synthetic and the models are trained and tested on the same "
                 "generator (different random seeds), so the scores are an upper bound for "
                 "real CloudTrail data.\n"
                 "- Features based on IP/user history lean on the assumption that attackers "
                 "use IP addresses never seen before.\n"
                 "- Incidents that share a target within an hour can be merged into one alert.")
+
+st.markdown('<div class="footer">Cloud Log Threat Detection &middot; '
+            'Brute force detection in AWS CloudTrail logs</div>', unsafe_allow_html=True)
