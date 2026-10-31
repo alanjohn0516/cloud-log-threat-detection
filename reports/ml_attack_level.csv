@@ -1,0 +1,7 @@
+attack_type,Rules (R1-R3),Decision Tree,Logistic Regression,Random Forest,XGBoost,Isolation Forest
+credential_stuffing,3/3,3/3,3/3,3/3,3/3,3/3
+low_and_slow,0/2,2/2,2/2,2/2,2/2,2/2
+password_guessing,3/3,3/3,3/3,3/3,3/3,3/3
+password_spraying,0/3,3/3,3/3,3/3,3/3,3/3
+role_enumeration,3/3,3/3,3/3,3/3,3/3,3/3
+root_brute_force,2/2,2/2,2/2,2/2,2/2,2/2

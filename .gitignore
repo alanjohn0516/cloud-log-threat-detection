@@ -7,3 +7,4 @@ __pycache__/
 data/cloudtrail_logs.json
 data/cloudtrail_labeled.csv
 .vscode/
+ml/saved/

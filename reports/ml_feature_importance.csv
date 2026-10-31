@@ -1,0 +1,58 @@
+model,feature,importance
+Decision Tree,pair_prior_success,0.9714436398301359
+Decision Tree,ip_distinct_users_fail_5m,0.02073099481484015
+Decision Tree,ip_login_fail_1h,0.004115468511160555
+Decision Tree,ip_prior_success,0.0023576083402885714
+Decision Tree,baseline_age_days,0.001222468389514219
+Decision Tree,ip_login_fail_5m,7.716598729888633e-05
+Decision Tree,user_fail_1h,5.2654126761621674e-05
+Decision Tree,is_console_login,0.0
+Decision Tree,is_failure,0.0
+Decision Tree,is_root,0.0
+Decision Tree,is_hidden_user,0.0
+Decision Tree,is_malformed,0.0
+Decision Tree,is_access_denied,0.0
+Decision Tree,ip_role_fail_5m,0.0
+Decision Tree,ip_role_fail_1h,0.0
+Decision Tree,ip_malformed_1h,0.0
+Decision Tree,ip_distinct_users_fail_1h,0.0
+Decision Tree,user_fail_6h,0.0
+Decision Tree,user_distinct_ips_fail_6h,0.0
+Random Forest,pair_prior_success,0.2581553628371784
+Random Forest,ip_prior_success,0.19729305402870448
+Random Forest,ip_distinct_users_fail_5m,0.1171556394072942
+Random Forest,is_failure,0.11651917135139508
+Random Forest,ip_login_fail_5m,0.08954875221552563
+Random Forest,user_fail_1h,0.08548124953949808
+Random Forest,user_fail_6h,0.04620582999103826
+Random Forest,user_distinct_ips_fail_6h,0.03672156334442276
+Random Forest,ip_login_fail_1h,0.024028923051610387
+Random Forest,is_console_login,0.008598721589863025
+Random Forest,ip_distinct_users_fail_1h,0.006186921526607751
+Random Forest,ip_malformed_1h,0.004816318139270104
+Random Forest,ip_role_fail_5m,0.004151523615660486
+Random Forest,ip_role_fail_1h,0.002028836156624284
+Random Forest,baseline_age_days,0.0019353615312714166
+Random Forest,is_access_denied,0.0006132540270136377
+Random Forest,is_malformed,0.00037402946235329617
+Random Forest,is_hidden_user,0.00011050190690775836
+Random Forest,is_root,7.498627776102363e-05
+XGBoost,pair_prior_success,0.9673241972923279
+XGBoost,ip_distinct_users_fail_5m,0.014409100636839867
+XGBoost,ip_prior_success,0.00964934378862381
+XGBoost,is_failure,0.002661792328581214
+XGBoost,ip_login_fail_5m,0.00232148845680058
+XGBoost,user_fail_1h,0.0007673173677176237
+XGBoost,is_hidden_user,0.0007458159816451371
+XGBoost,baseline_age_days,0.0005756542086601257
+XGBoost,ip_login_fail_1h,0.00039064217708073556
+XGBoost,user_fail_6h,0.0003437654231674969
+XGBoost,is_root,0.000280725653283298
+XGBoost,ip_role_fail_5m,0.00022379781876225024
+XGBoost,ip_role_fail_1h,0.00018582504708319902
+XGBoost,ip_distinct_users_fail_1h,0.00012058127322234213
+XGBoost,is_console_login,0.0
+XGBoost,is_malformed,0.0
+XGBoost,is_access_denied,0.0
+XGBoost,ip_malformed_1h,0.0
+XGBoost,user_distinct_ips_fail_6h,0.0
