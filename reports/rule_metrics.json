@@ -1,0 +1,44 @@
+{
+  "event_level": {
+    "tp": 610,
+    "fp": 24,
+    "fn": 328,
+    "tn": 5473,
+    "precision": 0.9621,
+    "recall": 0.6503,
+    "f1": 0.7761,
+    "false_positive_rate": 0.0044,
+    "accuracy": 0.9453
+  },
+  "alerts_total": 12,
+  "alerts_real": 11,
+  "alerts_false": 1,
+  "attacks_detected": 11,
+  "attacks_total": 16,
+  "attack_level": {
+    "credential_stuffing": {
+      "detected": 3,
+      "total": 3
+    },
+    "low_and_slow": {
+      "detected": 0,
+      "total": 2
+    },
+    "password_guessing": {
+      "detected": 3,
+      "total": 3
+    },
+    "password_spraying": {
+      "detected": 0,
+      "total": 3
+    },
+    "role_enumeration": {
+      "detected": 3,
+      "total": 3
+    },
+    "root_brute_force": {
+      "detected": 2,
+      "total": 2
+    }
+  }
+}
