@@ -16,11 +16,13 @@ import pandas as pd
 import streamlit as st
 
 from cloud import database
-from dashboard import ui
+from dashboard import auth, bootstrap, ui
 from security import alert_store, pipeline
 
 st.set_page_config(page_title="Cloud Log Threat Detection", page_icon="🛡️", layout="wide")
 ui.inject_css()
+auth.require_login()
+bootstrap.run_if_enabled()
 
 SEVERITIES = ui.SEV_ORDER
 ICON = {"CRITICAL": "🔴 CRITICAL", "HIGH": "🟠 HIGH", "MEDIUM": "🟡 MEDIUM"}

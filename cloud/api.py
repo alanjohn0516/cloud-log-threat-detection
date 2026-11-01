@@ -1,10 +1,11 @@
 # cloud/api.py
 # FastAPI service: receives CloudTrail logs and serves them to other modules.
 # Run:  uvicorn cloud.api:app --port 8000
-from fastapi import FastAPI, Query
+from fastapi import Depends, FastAPI, Query
 from pydantic import BaseModel
 
 from cloud import database
+from cloud.auth import require_api_key
 
 app = FastAPI(
     title="Cloud Log API",
@@ -23,13 +24,13 @@ def health():
     return {"status": "ok"}
 
 
-@app.post("/logs")
+@app.post("/logs", dependencies=[Depends(require_api_key)])
 def ingest_logs(batch: LogBatch):
     """Store a batch of CloudTrail records. Returns how many were new."""
     return database.insert_records(batch.Records)
 
 
-@app.get("/logs")
+@app.get("/logs", dependencies=[Depends(require_api_key)])
 def list_logs(
     event_name: str | None = None,
     outcome: str | None = None,
@@ -48,7 +49,7 @@ def list_logs(
     return {"count": len(events), "events": events}
 
 
-@app.get("/stats")
+@app.get("/stats", dependencies=[Depends(require_api_key)])
 def stats():
     return database.get_stats()
 
@@ -61,7 +62,7 @@ from fastapi import HTTPException
 from security import alert_store, pipeline
 
 
-@app.post("/detect")
+@app.post("/detect", dependencies=[Depends(require_api_key)])
 def run_detection(policy: str = "ml", threshold: float = Query(0.5, ge=0.0, le=1.0)):
     """Run the full pipeline (features, ML + rules, incidents) on the stored logs
     and save the resulting alerts."""
@@ -83,7 +84,7 @@ def run_detection(policy: str = "ml", threshold: float = Query(0.5, ge=0.0, le=1
     }
 
 
-@app.get("/alerts")
+@app.get("/alerts", dependencies=[Depends(require_api_key)])
 def list_alerts(severity: str | None = None, attack_type: str | None = None,
                 limit: int = Query(500, ge=1, le=5000)):
     """Alerts produced by the last detection run."""
