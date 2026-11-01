@@ -68,7 +68,7 @@ def test_dashboard_loads_with_alerts(seeded):
     metrics = {m.label: m.value for m in at.metric}
     assert metrics["Alerts"] == str(seeded)
     assert metrics["Events analysed"] != "0"
-    assert len(at.tabs) == 4
+    assert len(at.tabs) == 5
 
 
 def test_dashboard_empty_database(env):

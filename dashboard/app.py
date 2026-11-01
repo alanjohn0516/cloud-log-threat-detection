@@ -16,7 +16,7 @@ import pandas as pd
 import streamlit as st
 
 from cloud import database
-from dashboard import auth, bootstrap, ui
+from dashboard import analyze, auth, bootstrap, ui
 from security import alert_store, pipeline
 
 st.set_page_config(page_title="Cloud Log Threat Detection", page_icon="🛡️", layout="wide")
@@ -108,8 +108,8 @@ if alerts.empty:
     st.info("No alerts yet. Click 'Run detection now' in the sidebar.")
 
 st.write("")
-tab_over, tab_alerts, tab_models, tab_about = st.tabs(
-    ["📊 Overview", "🚨 Alerts", "🧪 Model comparison", "ℹ️ About"])
+tab_over, tab_alerts, tab_analyze, tab_models, tab_about = st.tabs(
+    ["📊 Overview", "🚨 Alerts", "📤 Analyze your logs", "🧪 Model comparison", "ℹ️ About"])
 
 # ------------------------------------------------------------------ Overview
 with tab_over:
@@ -247,3 +247,6 @@ with tab_about:
 
 st.markdown('<div class="footer">Cloud Log Threat Detection &middot; '
             'Brute force detection in AWS CloudTrail logs</div>', unsafe_allow_html=True)
+
+with tab_analyze:
+    analyze.render()
