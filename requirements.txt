@@ -7,8 +7,8 @@ seaborn
 fastapi
 uvicorn
 streamlit
+altair
 requests
 joblib
 pytest
-
 httpx
