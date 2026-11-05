@@ -98,4 +98,4 @@ def test_dashboard_correct_password(env):
     at.button[0].click().run()
     assert not at.exception
     assert len(at.text_input) == 0          # the login form is gone
-    assert any("No logs found" in w.value for w in at.warning)   # past the login (empty test DB)
+    assert any("sample" in b.label for b in at.button)   # past the login (empty test DB)

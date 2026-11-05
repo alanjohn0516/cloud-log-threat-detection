@@ -174,3 +174,13 @@ def render():
     with st.expander(f"Evidence: {len(evidence)} log events"):
         st.dataframe(evidence, hide_index=True)
     st.caption("This is a screening aid. A person should confirm each alert before acting.")
+
+
+def sample_bytes():
+    """The 10-day sample log file as bytes."""
+    return _sample_file()
+
+
+def run_upload(payload):
+    """payload: tuple of (file name, bytes). Returns (events, info, alerts)."""
+    return _analyze_cached(tuple(payload))

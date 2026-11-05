@@ -74,15 +74,22 @@ def ensure_ready(db_path=None, days=30, seed=42, train_seeds=(1, 2, 3), train_da
     return done
 
 
+def ensure_model(train_seeds=(1, 2, 3), train_days=30):
+    """Train the model if its file is missing (it is not stored on GitHub)."""
+    if os.path.exists(pipeline.DEFAULT_MODEL):
+        return False
+    _train_model(train_seeds, train_days)
+    return True
+
+
 @st.cache_resource(show_spinner=False)
-def _run_once(db_path):
-    return ensure_ready(db_path)
+def _model_once():
+    return ensure_model()
 
 
 def run_if_enabled():
-    """Called by the dashboard right after the login. Does the work once per server start."""
+    """Called right after the login. Trains the model once per server start."""
     if not enabled():
         return
-    with st.spinner("First start: building demo logs and training the model "
-                    "(about a minute)..."):
-        _run_once(database.get_db_path())
+    with st.spinner("First start: training the detection model (about a minute)..."):
+        _model_once()

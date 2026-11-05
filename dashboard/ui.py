@@ -214,8 +214,8 @@ def type_chart(view):
             .properties(height=260))
 
 
-def hourly_chart(failed):
-    d = failed.set_index("time").resample("1h").size().reset_index()
+def hourly_chart(failed, freq="1h"):
+    d = failed.set_index("time").resample(freq).size().reset_index()
     d.columns = ["time", "failed"]
     return (alt.Chart(d)
             .mark_area(opacity=0.28, color=INDIGO, line={"color": INDIGO})
